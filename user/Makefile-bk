@@ -1,0 +1,26 @@
+KDIR ?= /lib/modules/$(shell uname -r)/source
+#KDIR ?= /proj/cu-bison-lab-PG0/bpf-kernel/net-next
+BIN :=udp_usr.o
+ARCH := x86
+TOOLS := $(KDIR)/tools/lib
+CFLAGS = -I$(KDIR)/include \
+	 -I$(KDIR)/arch/$(ARCH)/include \
+	 -I$(KDIR)/arch/$(ARCH)/include/generated \
+	-I$(KDIR)/arch/$(ARCH)/include/uapi \
+	-I$(KDIR)/arch/$(ARCH)/include/generated/uapi \
+	-I$(KDIR)/include/uapi \
+	-I$(KDIR)/include/generated/uapi \
+	-include $(KDIR)/include/linux/kconfig.h \
+	-I$(KDIR)/tools/testing/selftests/bpf \
+	-I$(KDIR)/tools/lib \
+	-I$(KDIR)/tools/include 
+
+
+all: $(BIN)
+
+udp_usr.o: udp_usr.c
+	gcc $< $(TOOLS)/bpf/libbpf.c -o udp_usr.o $(CFLAGS)
+	#gcc $< -o $@ $(CFLAGS)
+
+clean:
+	rm -f udp_usr.o 
