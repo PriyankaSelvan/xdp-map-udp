@@ -10,6 +10,7 @@ int main(int argc, char** argv)
 	int prog_fd;
 
 	int map_fd;
+	int dummy;
 
 	if(argc != 2){
 		printf("\nPlease enter interface to load to");
@@ -24,8 +25,23 @@ int main(int argc, char** argv)
 		.file = "../kernel/udp_kern.o",
 	};
 
-	struct bpf_map *map = bpf_object__find_map_by_name(obj, "dpcnt");
+	if(bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd))
+	{
+		printf("\nCould not load program");
+		return 1;
+	}
 
+	if(bpf_set_link_xdp_fd(ifindex, prog_fd, xdp_flags) < 0) {
+                printf("\nlink set xdp fd failed");
+                return 1;
+        }
+
+	printf("\nEnter a number when done sending traffic:");
+	scanf("%d", &dummy);
+
+        
+	struct bpf_map *map = bpf_object__find_map_by_name(obj, "dpcnt");
+        
 	unsigned int nr_cpus = bpf_num_possible_cpus();
 	__u64 values[nr_cpus];
 	__u32 key = 17;
@@ -37,27 +53,19 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if(bpf_prog_load_xattr(&prog_load_attr, &obj, &prog_fd)){
-		printf("\nLoading kernel program failed");
-		return 1;
-	}
 
-	if(bpf_set_link_xdp_fd(ifindex, prog_fd, xdp_flags) < 0) {
-		printf("\nlink set xdp fd failed");
-		return 1;
-	}
-        
 	map_fd = bpf_map__fd(map);
 
         if(bpf_map_lookup_elem(map_fd, &key, &values)){
 		printf("\nLookup failed");
 		return 1;
 	}
+	printf("\nStarting for loop with %u", nr_cpus);
 	for(cpu = 0; cpu < nr_cpus; cpu++)
 		sum += values[cpu];
 
-	printf("\n Key %u value %llu\n", key, sum);
-
+        printf("\n Key %u value %llu\n", key, sum);
+        
 	return 0;
 
 }
