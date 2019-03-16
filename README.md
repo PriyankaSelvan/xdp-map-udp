@@ -39,3 +39,5 @@ iperf -c <xdp-node IP address> -u -n 1G -b 100M
 
 Enter an integer to go ahead with the program and see the number of packets dropped.
 
+I referred this [presentation](https://www.linuxplumbersconf.org/event/2/contributions/71/attachments/17/9/presentation-lpc2018-xdp-tutorial.pdf) to write the code.
+
