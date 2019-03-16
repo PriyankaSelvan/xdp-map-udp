@@ -4,6 +4,7 @@ BIN :=udp_usr.o
 TOOLS:= $(KDIR)/tools
 INC = -I$(KDIR)/tools/testing/selftests/bpf \
       -I$(KDIR)/tools/lib \
+      -I$(KDIR)/tools/include/uapi
 
 all: $(BIN)
 

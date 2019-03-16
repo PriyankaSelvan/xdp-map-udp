@@ -19,6 +19,13 @@ int parse_ipv4(void *data, u64 nh_off, void *data_end)
 	return iph->protocol;
 }
 
+struct bpf_map_def SEC("maps") dpcnt = {
+                .type = BPF_MAP_TYPE_PERCPU_ARRAY,
+                .key_size = sizeof(u32),
+                .value_size = sizeof(long),
+                .max_entries = 256,
+};
+
 SEC("xdp_drop_UDP")
 int xdp_prog_drop_all_UDP(struct xdp_md *ctx)
 {
@@ -27,6 +34,7 @@ int xdp_prog_drop_all_UDP(struct xdp_md *ctx)
 	struct ethhdr *eth = data;
 	u64 nh_off;
 	u32 ipproto = 0;
+	long *value;
 
 	nh_off = sizeof(*eth);
 	if(data + nh_off > data_end)
@@ -35,8 +43,12 @@ int xdp_prog_drop_all_UDP(struct xdp_md *ctx)
 	if(eth->h_proto == htons(ETH_P_IP))
 		ipproto = parse_ipv4(data, nh_off, data_end);
 
-	if(ipproto == IPPROTO_UDP)
+	if(ipproto == IPPROTO_UDP){
+		value = bpf_map_lookup_elem(&dpcnt, &ipproto);
+		if(value)
+			*value += 1;
 		return XDP_DROP;
+	}
 
 	return XDP_PASS;
 }
