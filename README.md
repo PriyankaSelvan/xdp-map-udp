@@ -34,7 +34,7 @@ sudo ./udp_usr.o <interface-name>
 
 Send UDP traffic to the interface from another node
 ```
-iperf -c 10.10.1.1 -u -n 1G -b 100M
+iperf -c <xdp-node IP address> -u -n 1G -b 100M
 ```
 
 Enter an integer to go ahead with the program and see the number of packets dropped.
