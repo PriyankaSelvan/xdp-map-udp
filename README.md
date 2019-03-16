@@ -9,7 +9,9 @@ The kernel XDP program
 
 The user XDP program 
 - Loads the kernel object file to the interface given in the command line argument
-- Reads from the BPF map and displays the result
+- Reads the values for key 17 from the BPF map and displays the result
+
+Map used is a per cpu array which is faster because it does not need to acquire locks to be written to. At the user program we need to read from every cpu and add the results. 
 
 ### Running the programs
 
