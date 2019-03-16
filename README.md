@@ -3,7 +3,9 @@ Simple XDP program to use BPF maps from kernel and user space.
 
 ### The programs
 
-The kernel XDP program drops all UDP packets that arrive at the interface it is loaded to.
+The kernel XDP program 
+- Drops all UDP packets that arrive at the interface it is loaded to
+- Counts the number of packets it drops and writes it to a BPF map with key as the UDP protocol number (17)
 
 The user XDP program 
 - Loads the kernel object file to the interface given in the command line argument
